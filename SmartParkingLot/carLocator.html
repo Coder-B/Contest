@@ -1,0 +1,83 @@
+<html>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <head><title>Car Locator</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-latest.js"></script>
+        <style>
+            img {
+                width: 50%;
+                height: auto;
+            }
+
+            #mask  {
+                position: fixed;
+                top: 220px;
+                right: 100px;
+                width: 400px;
+                height: 250px;
+                box-sizing: border-box;
+                padding: 10px;
+                background-color: beige;
+
+            }
+        </style>
+    </head>
+    <body>
+        <p>该页面提供车辆定位功能</p>
+        <p>首先上传一张照片（不大于3M，jpg/png格式）作为单一摄像头拍摄的停车场画面信息。实际场景中，对停车场所有摄像头画面遍历处理即可，此处仅作演示用。</p>
+        <p>其次填入需要查找的车牌号信息</p>
+        <p>大约3s之后，结果会在右边框内显示。</p>
+        <p>该系统搜索要求识别文字与输入后N位一致，有时因为文字识别和实际出入较大，会导致匹配失败。识别出来的文字也会在右边框显示，供debug</p>
+        <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/carLocator">
+        <input id="imgFile" type="file" accept="image/jpeg, image/png" onchange="loadFile(event)" name="imgFile"><br>
+        <img id="output"/><br>
+        <label>车牌号: </label>
+        <input type="text" id="platenum" name="platenum"><br><br>
+        <input type="submit" value="Search" id="submit"  style="width:100px; height: 20px; background-color:bisque;"/>
+        </form>
+        <div id="mask">
+           <div id="mask-res"><pre id="json"></pre></div>
+        </div>
+    
+    <script>
+
+        function loadFile(event) {
+            var output = document.getElementById('output');
+            output.src = URL.createObjectURL(event.target.files[0]);
+            output.onload = function() {
+                URL.revokeObjectURL(output.src) // free memory
+            }
+        }
+
+        $(document).ready(function(){
+            var output = document.getElementById("json");
+            $("#uploadForm").submit(function(event){
+                event.preventDefault();
+                output.innerHTML = "";
+                var $form = $(this),
+                url = $form.attr( 'action' )
+                var formData = new FormData(this);
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (data) {
+                        output.innerHTML = JSON.stringify(JSON.parse(data),null,2);
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            });
+        });
+
+        // window.onload = function() {
+        //     var maskEle = document.querySelector('#mask-res');
+        //     setTimeout(function(){
+        //         maskEle.innerHTML = 'fuweiqiang';
+        //     }, 2000);
+        // }
+    
+    </script>
+    </body>
+</html>

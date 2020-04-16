@@ -1,0 +1,79 @@
+<html>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <head><title>Lot Analyst</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-latest.js"></script>
+        <style>
+            img {
+                width: 50%;
+                height: auto;
+            }
+
+            #mask  {
+                position: fixed;
+                top: 150px;
+                right: 100px;
+                width: 400px;
+                height: 250px;
+                box-sizing: border-box;
+                padding: 10px;
+                background-color: beige;
+
+            }
+        </style>
+    </head>
+    <body>
+            <p>该页面提供空闲停车位查找及不规范停车检查功能</p>
+            <p>上传一张照片（不大于3M，jpg/png格式）作为单一摄像头拍摄的停车场画面信息。实际场景中，对停车场所有摄像头画面遍历处理即可，此处仅作演示用。</p>
+            <p>大约3s之后，结果会在右边框内显示。如果停车位没有ID标识，结果中会以“1“替代</p>
+        <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/parkingLots">
+        <input id="imgFile" type="file" accept="image/jpeg, image/png" onchange="loadFile(event)" name="imgFile"><br>
+        <img id="output"/><br><br>
+        <input type="submit" value="Scan" id="submit" style="width:100px; height: 20px; background-color:bisque;" />
+        </form>
+        <div id="mask">
+           <div id="mask-res"><pre id="json"></pre></div>
+        </div>
+
+
+    
+    <script>
+
+        function loadFile(event) {
+            var output = document.getElementById('output');
+            output.src = URL.createObjectURL(event.target.files[0]);
+            output.onload = function() {
+                URL.revokeObjectURL(output.src) // free memory
+            }
+        }
+
+        $(document).ready(function(){
+            // var maskEle = document.querySelector('#mask-res');
+            var output = document.getElementById("json");
+            $("#uploadForm").submit(function(event){
+                event.preventDefault();
+                // maskEle.innerHTML = "";
+                output.innerHTML = "";
+                var $form = $(this),
+                url = $form.attr( 'action' )
+                var fd = new FormData();
+                var files = $('#imgFile')[0].files[0];
+                fd.append('imgFile',files);
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: fd,
+                    success: function (data) {
+                        // maskEle.innerHTML = JSON.stringify(JSON.parse(data),null,2);
+                        output.innerHTML = JSON.stringify(JSON.parse(data),null,2);
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            });
+        });
+    
+    </script>
+    </body>
+</html>
