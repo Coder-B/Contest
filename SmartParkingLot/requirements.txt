@@ -1,5 +1,5 @@
 oss2 == 2.9.1
-Pillow == 6.2.2
+Pillow == 8.2.0
 aliyun-python-sdk-core-v3 == 2.13.11
 aliyun-python-sdk-objectdet == 1.0.6
 aliyun-python-sdk-ocr == 1.0.6
